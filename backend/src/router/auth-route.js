@@ -3,10 +3,9 @@ const { z } = require('zod')
 const router = express.Router()
 const userModel = require('../model/users-model')
 const bcrypt = require('bcrypt')
-const { authenticate } = require('../auth')
-const jwt = require('jsonwebtoken')
+const { authenticate, authorize } = require('../auth')
 const users = require('../model/users-model')
-
+const jwt = require('jsonwebtoken')
 
 router.post('/login', async (req, res, next) => {
     const cred = z.object({
@@ -29,11 +28,15 @@ router.post('/login', async (req, res, next) => {
     next()
 }, authenticate)
 
-router.post('/register', authenticate, async (req, res) => {
+router.post('/register', async (req, res) => {
+    if (req.cookies.token)
+        return res.status(400).json({ message: 'user authenticated', })
+
     const cred = z.object({
         username: z.string(),
         email: z.string().email('user email is required'),
-        password: z.string().min(6, 'password at least 6 length')
+        password: z.string().min(6, 'password at least 6 length'),
+        role: z.string().nullable()
     }).safeParse(req.body)
 
     if (!cred.success)
@@ -47,11 +50,23 @@ router.post('/register', authenticate, async (req, res) => {
 
     cred.data.password = passHashed
 
-    const user = userModel.create(cred.data);
+    const user = await userModel.create(cred.data);
 
     res.status(201).json({
         message: 'user register success',
         user
+    })
+})
+
+router.post('/logout', (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]
+    if (!token)
+        return res.status(400).json({ message: 'secret token required' })
+
+    jwt.decode(token)
+    res.clearCookie('token')
+    return res.json({
+        message: 'user logout success'
     })
 })
 
