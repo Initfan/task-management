@@ -1,14 +1,15 @@
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
-const projectRouter = require('../src/router/project-router')
-const authRouter = require('./router/auth-router')
+const projectRouter = require('./router/project-route')
+const authRouter = require('./router/auth-route')
+const taskRouter = require('./router/task-route')
+const commentRouter = require('./router/comment-route')
 const cookieParser = require('cookie-parser')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-
 
 app.get('/', (req, res) => {
     console.log(req.cookies)
@@ -16,8 +17,10 @@ app.get('/', (req, res) => {
 })
 
 app.use(authRouter)
+app.use(taskRouter)
+app.use(projectRouter)
+app.use(commentRouter)
 
-app.use('/projects', projectRouter)
 
 app.listen(3000, () =>
     mongoose.connect(process.env.MONGO_DB)
