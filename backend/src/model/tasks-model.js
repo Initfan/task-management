@@ -3,7 +3,7 @@ const { default: mongoose, Schema } = require("mongoose");
 const tasksSchema = new mongoose.Schema({
     _id: Schema.Types.ObjectId,
     project_id: { type: Schema.Types.ObjectId, ref: 'projects' },
-    user_id: { type: Schema.Types.ObjectId, ref: 'users' },
+    assigned_to: { type: Schema.Types.ObjectId, ref: 'users' },
     title: String,
     description: String,
     status: String,

@@ -15,18 +15,25 @@ const credentials = (body, cred) => z.object({
     ...cred
 }).safeParse(body)
 
+router.get('/tasks/:user_id', async (req, res) => {
+    let data;
+    if (req.query.status) {
+        data = await tasks.find({
+            assigned_to: req.params.user_id,
+            status: req.query.status
+        }).exec()
+    }
+    else data = await tasks.find({ assigned_to: req.params.user_id }).exec()
+
+    res.status(200).json({
+        message: 'Developer tasks',
+        status: req.query.status || 'all',
+        data
+    })
+})
+
 router.route('/tasks')
     .all(authorize)
-    .get(async (req, res) => {
-        if (!req.headers.id)
-            return res.status(400).json({ message: 'required user id' })
-
-        const data = await tasks.find({ assigned_to: req.headers.id }).exec()
-        res.status(200).json({
-            message: 'Developer projects',
-            data
-        })
-    })
     .post(async (req, res) => {
         const cred = credentials(req.body)
 
