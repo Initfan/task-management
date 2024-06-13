@@ -6,10 +6,17 @@ const authRouter = require('./router/auth-route')
 const taskRouter = require('./router/task-route')
 const commentRouter = require('./router/comment-route')
 const cookieParser = require('cookie-parser')
+const cors = require('cors')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+
+app.use(cors({
+    origin: ['http://localhost:3001'],
+    methods: "GET,HEAD,PUT,POST,DELETE",
+    allowedHeaders: ['Content-Type', 'Authorization']
+}))
 
 app.get('/', (req, res) => {
     console.log(req.cookies)
