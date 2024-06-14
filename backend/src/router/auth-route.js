@@ -45,7 +45,7 @@ router.post('/register', async (req, res) => {
         username: z.string(),
         email: z.string().email('user email is required'),
         password: z.string().min(6, 'password at least 6 length'),
-        role: z.string().nullable()
+        role: z.string().nullish(),
     }).safeParse(req.body)
 
     if (!cred.success)
